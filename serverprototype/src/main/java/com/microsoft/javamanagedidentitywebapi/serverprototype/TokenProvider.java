@@ -45,7 +45,8 @@ public class TokenProvider {
 
         JWTClaimsSet claimsSet = this.getClaims(token);
 
-        String userPrincipalName = claimsSet.getClaim("upn").toString();
+        //String userPrincipalName = claimsSet.getClaim("upn").toString();
+        String userPrincipalName = claimsSet.getClaim("appid").toString();
         String issuer = claimsSet.getClaim("iss").toString();
 
         Collection<? extends GrantedAuthority> authorities =
