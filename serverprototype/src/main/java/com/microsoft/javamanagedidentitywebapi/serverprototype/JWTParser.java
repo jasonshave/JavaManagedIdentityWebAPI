@@ -25,11 +25,6 @@ public class JWTParser {
 
     private JWTParserConfiguration configuration;
 
-    /**
-     * Constructor
-     *
-     *
-     */
     public JWTParser() {
     }
 

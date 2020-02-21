@@ -17,9 +17,7 @@ public class JWTParserConfiguration {
      * @param expectedIssuerClaim
      * @param expectedAudienceClaim
      */
-    public JWTParserConfiguration(String JWKSetUrl,
-                                  JWSAlgorithm JWSAlgorithm,
-                                  String expectedIssuerClaim,
+    public JWTParserConfiguration(String JWKSetUrl, JWSAlgorithm JWSAlgorithm, String expectedIssuerClaim,
                                   String expectedAudienceClaim) {
         this.JWKSetUrl = JWKSetUrl;
         this.JWSAlgorithm = JWSAlgorithm;

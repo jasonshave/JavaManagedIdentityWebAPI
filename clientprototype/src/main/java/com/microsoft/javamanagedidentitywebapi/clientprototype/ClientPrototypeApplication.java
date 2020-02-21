@@ -31,8 +31,8 @@ public class ClientPrototypeApplication implements CommandLineRunner {
     @Value("${authority}")
     String authority;
 
-    @Value("${resource}")
-    String resource;
+    @Value("${application-id-uri}")
+    String applicationIdUri;
 
     @Value("${resource-api-url}")
     String resourceApiUrl;
@@ -43,7 +43,7 @@ public class ClientPrototypeApplication implements CommandLineRunner {
 
         AuthenticationContext context = new AuthenticationContext(authority, true, service);
 
-        Future<AuthenticationResult> future = context.acquireToken(resource, new ClientCredential(clientId, clientSecret), null);
+        Future<AuthenticationResult> future = context.acquireToken(applicationIdUri, new ClientCredential(clientId, clientSecret), null);
         AuthenticationResult result = future.get();
 
         System.out.println("Bearer " + result.getAccessToken());

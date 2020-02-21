@@ -40,12 +40,10 @@ public class TokenProvider {
         }
     }
 
-
     public Authentication getAuthentication(String token) {
 
         JWTClaimsSet claimsSet = this.getClaims(token);
 
-        //String userPrincipalName = claimsSet.getClaim("upn").toString();
         String userPrincipalName = claimsSet.getClaim("appid").toString();
         String issuer = claimsSet.getClaim("iss").toString();
 
@@ -56,9 +54,7 @@ public class TokenProvider {
 
         User principal = new User(userPrincipalName, "", authorities);
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
-
     }
-
 
     public boolean validateToken(String authToken) {
         return (this.getClaims(authToken) != null);
