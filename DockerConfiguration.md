@@ -92,7 +92,7 @@ This guide assumes you know how to create a Docker image including setting a tag
 
 7. Push the image to ACR:
 
-    ```
+    ```plaintext
     docker push [your_registry_fqdn]/samples/java/serverprototype
     ```
 
