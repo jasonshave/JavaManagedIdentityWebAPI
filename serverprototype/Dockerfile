@@ -1,13 +1,8 @@
-#BUILD
-FROM maven:3.6.0-jdk-11-slim AS build
+FROM openjdk:8
 LABEL maintainer="jason.shave@microsoft.com"
 LABEL source="https://github.com/jasonshave/JavaClientCredentialFlowWebAPI"
-COPY src /home/app/src
-COPY pom.xml /home/app
-RUN mvn -f /home/app/pom.xml clean package
-
-#PACKAGE
-FROM openjdk:8
-COPY --from=build /home/app/target/serverprototype-0.0.1-SNAPSHOT.jar /usr/local/lib/serverprototype.jar
+VOLUME /tmp
+ADD target/serverprototype.jar app.jar
 EXPOSE 8080
-ENTRYPOINT [ "java", "-jar", "/usr/local/lib/serverprototype.jar" ]
+RUN sh -c 'touch /app.jar'
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]

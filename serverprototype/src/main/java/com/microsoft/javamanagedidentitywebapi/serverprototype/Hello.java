@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class Hello implements CommandLineRunner {
-    @Value("${applicationType}")
+    @Value("${application-type}")
     private String applicationType;
 
     @Override
