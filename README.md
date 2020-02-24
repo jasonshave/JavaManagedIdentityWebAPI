@@ -1,5 +1,8 @@
 # Using Azure Active Directory and Spring Boot to authenticate a Java service daemon with a protected Java web API
 
+|   [Configuration](#setup-and-configuration)   | [Docker/Azure](DockerConfiguration.md)  |
+| ---                       | ---   |
+
 ## About this sample
 
 This example provides the necessary code, configuration guidance, and tests associated with calling a protected web API
@@ -8,7 +11,7 @@ authorization server to provide a token to the calling application which passes 
 validated. The web API then either permits or denys the call to the URL.
 
 A common way of providing Azure Active Directory authentication to a web API from a Single Page Application ("SPA") is
-to use 
+to use
 [OAuth 2.0 implicit grant flow](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-implicit-grant-flow).
 However, what if you needed to authenticate an application running as a service; without a real person providing
 credentials? Given this use case, we rely on the
@@ -59,15 +62,15 @@ NOTE: This sample currently uses the `application-local.properties` file for bot
 clientprototype modules which has been ignored by Git to store secrets and configuration information.
 A future update will include instructions for incorporating Azure Key Vault's secret store.
 
-## Setup & Configuration
+## Setup and Configuration
 
 The setup of this sample involves the following high-level tasks which are broken down into detailed steps below:
 
-1. Configure the Client in Azure Active Directory
+1. Configure the Client in Azure Active Directory.
     - Register and configure the Client application as a **registered application**
     - Create a secret
     - Obtain necessary additional parameters from AAD
-2. Configure the `clientprototype` application settings
+2. Configure the `clientprototype` application settings.
 
 ### Configure the Client in Azure Active Directory
 
@@ -78,24 +81,24 @@ NOTE: If you don't yet have access to Azure Active Directory, you can obtain a f
 
     ![AAD](images/aad.png)
 
-2. Click on **App Registrations**
+2. Click on **App Registrations**.
 
     ![AppRegistrations](images/appregistrations.png)
 
-3. Click **New registration**
+3. Click **New registration**.
 
     ![NewRegistration](images/newregistration.png)
 
-4. Type a **Name** for your application (i.e. clientprototype)
+4. Type a **Name** for your application (i.e. clientprototype).
 
-5. For the **Supported account types**, leave the default of **Accounts in this organizational directory only (*your tenant name* - Single tenant)**
+5. For the **Supported account types**, leave the default of **Accounts in this organizational directory only (*your tenant name* - Single tenant)**.
 
     - **NOTE:** This sample was only tested with single tenants in mind. It may work with multi-tenant configurations as well
     however this may require the use of the MSAL4J library instead of ADAL4J.
 
-6. Click the **Register** button
+6. Click the **Register** button.
 
-7. On the summary screen for your newly created application, click the link **Add an Application ID URI**
+7. On the summary screen for your newly created application, click the link **Add an Application ID URI**.
 
     - **NOTE:** The client ID, tenant ID, and object ID have been removed from the image below for security reasons.
 
@@ -105,19 +108,19 @@ NOTE: If you don't yet have access to Azure Active Directory, you can obtain a f
 
     ![SetApplicationIdURI](images/setapplicationiduri.png)
 
-9. Click the **Certificates & Secrets** menu item
+9. Click the **Certificates & Secrets** menu item.
 
     ![CertificatesAndSecrets](images/certificatesandsecrets.png)
 
-10. Under the **Client secrets** section click **New client secret**
+10. Under the **Client secrets** section click **New client secret**.
 
     ![NewClientSecret](images/newclientsecret.png)
 
-11. Type a name for the **description** and select an expiration, or set it to never and click **Save**
+11. Type a name for the **description** and select an expiration, or set it to never and click **Save**.
 
     ![AddClientSecret](images/addclientsecret.png)
 
-12. Copy the client secret value somewhere and be sure to keep it outside of your code repository
+12. Copy the client secret value somewhere and be sure to keep it outside of your code repository.
 
     **NOTE:** You will never be able to view this secret again if you navigate away from this page.
     However, you can always delete it and/or create another one.
@@ -127,7 +130,7 @@ NOTE: If you don't yet have access to Azure Active Directory, you can obtain a f
 If you are running this application locally on your workstation (i.e. in IntellIJ), follow these steps to configure your
 `application-local.properties' file:
 
-1. Under `/clientprototype/src/main/java/resources` create a file called `application-local.properties` and add this file to your `.gitignore`
+1. Under `/clientprototype/src/main/java/resources` create a file called `application-local.properties` and add this file to your `.gitignore`.
 
 2. You will need to gather some information from the previous steps such as:
 
@@ -153,18 +156,19 @@ If you are running this application locally on your workstation (i.e. in IntellI
 
 5. In the `application-local.properties` file, populate it as follows:
 
-    ```
+    ```plaintext
     authority=https://login.microsoftonline.com/*your_tenant_id*/
     application-id-uri=api://*your_application_id_uri*
     resource-api-url=http://localhost:8080/gettime
     clientId=*your_client_id*
     clientSecret=*your_client_secret*
     ```
-6. Within IntelliJ click the **Edit Configurations** option on the top navigation bar
+
+6. Within IntelliJ click the **Edit Configurations** option on the top navigation bar.
 
     ![EditConfigurations](images/editconfiguration.png)
 
-7. For the **ClientPrototypeApplication** set the **Active profiles** to "local"
+7. For the **ClientPrototypeApplication** set the **Active profiles** to "local".
 
     ![LocalProfile](images/intellij.png)
 
@@ -177,13 +181,12 @@ Build both the Client and Server applications and run the Server; you should see
 
 ### Checking your JWT bearer token from Azure AD
 
-1. Navigate to https://jwt.io
+1. Navigate to https://jwt.io.
 
-2. Locate your `Bearer` token in the client console window and paste it into the JWT website
+2. Locate your `Bearer` token in the client console window and paste it into the JWT website.
 
 ### Verify your URL is protected
 
-1. Navigate to http://localhost:8080/gettime
+1. Navigate to http://localhost:8080/gettime.
 
-2. Currently this will throw an HTTP/500 error
-
+2. Currently this will throw an HTTP/500 error.
