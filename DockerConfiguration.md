@@ -27,6 +27,8 @@ You don't need to containerize the clientprototype if you're simply testing the 
 
 2. Install the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest)
 
+3. Build the `clientprototype` and `serverprototype` modules
+
 ## Azure Container Registry (ACR)
 
 If you do not have an Azure subscription, please sign up for a free trial at [azure.microsoft.com](https://azure.microsoft.com).
@@ -92,7 +94,7 @@ This guide assumes you know how to create a Docker image including setting a tag
 
 7. Push the image to ACR:
 
-    ```
+    ```plaintext
     docker push [your_registry_fqdn]/samples/java/serverprototype
     ```
 

@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalTime;
 
 @RestController
-@RequestMapping("/gettime")
+@RequestMapping("/api/gettime")
 public class GetTime {
 
     @GetMapping

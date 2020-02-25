@@ -6,6 +6,7 @@ import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jwt.JWTClaimsSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -22,6 +23,12 @@ import java.util.stream.Collectors;
 @Component
 public class TokenProvider {
 
+    @Value("${expected-issuer-claim}")
+    String expectedIssuerClaim;
+
+    @Value("${expected-audience-claim}")
+    String expectedAudienceClaim;
+
     private final Logger log = LoggerFactory.getLogger(TokenProvider.class);
 
     private final JWTParser customJWTParser;
@@ -33,8 +40,8 @@ public class TokenProvider {
             this.customJWTParser.configure(new JWTParserConfiguration(
                     "https://login.microsoftonline.com/common/discovery/keys", // defined by AzureAD
                     JWSAlgorithm.RS256, // defined by AzureAD
-                    "", // defined by AzureAD
-                    "")); //specific for this services. application id defined by AzureAD
+                    expectedIssuerClaim, // defined by AzureAD
+                    expectedAudienceClaim)); //specific for this services. application id defined by AzureAD
         } catch (IllegalArgumentException e) {
             log.error("CustomJWTParserConfiguration initialization error : {}", e);
         }
@@ -44,15 +51,16 @@ public class TokenProvider {
 
         JWTClaimsSet claimsSet = this.getClaims(token);
 
-        String userPrincipalName = claimsSet.getClaim("appid").toString();
+        String applicationId = claimsSet.getClaim("appid").toString();
         String issuer = claimsSet.getClaim("iss").toString();
+        //String scope = claimsSet.getClaim("").toString();
 
         Collection<? extends GrantedAuthority> authorities =
                 Arrays.stream(issuer.split(","))
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
 
-        User principal = new User(userPrincipalName, "", authorities);
+        User principal = new User(applicationId, "", authorities);
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
     }
 
