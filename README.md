@@ -1,4 +1,4 @@
-# Using Azure Active Directory and Spring Boot to authenticate a Java service daemon with a protected Java web API
+# Using MSAL4J, Azure AD, Client Credentials Grant Flow, and Spring Boot to authenticate a Java service daemon with a protected Java web API
 
 |   [Configuration](#setup-and-configuration)   | [Docker/Azure](DockerConfiguration.md)  |
 | ---                       | ---   |
@@ -38,8 +38,8 @@ defines the parent and subordinate child modules each with their own `pom.xml` f
 ### The "Client" (service daemon)
 
 The [clientprototype](https://github.com/jasonshave/JavaClientCredentialFlowWebAPI/tree/master/clientprototype) folder
-contains the code for running the Client. The client relies on the Active Directory Client Library for Java,
-[ADAL4J](https://github.com/AzureAD/azure-activedirectory-library-for-java) to make the call to AAD in order to get the
+contains the code for running the Client. The client relies on the Microsoft Authentication Library for Java,
+[MSAL4J](https://github.com/AzureAD/microsoft-authentication-library-for-java) to make the call to AAD in order to get the
 JWT. It is the responsibility of the client to perform the following high-level tasks:
 
 - Provide the tenantId, clientId, client secret, and resource URI to AAD
@@ -93,8 +93,7 @@ NOTE: If you don't yet have access to Azure Active Directory, you can obtain a f
 
 5. For the **Supported account types**, leave the default of **Accounts in this organizational directory only (*your tenant name* - Single tenant)**.
 
-    - **NOTE:** This sample was only tested with single tenants in mind. It may work with multi-tenant configurations as well
-    however this may require the use of the MSAL4J library instead of ADAL4J.
+    - **NOTE:** This sample was only tested with single tenants in mind, however it may work with multi-tenant configurations as well.
 
 6. Click the **Register** button.
 
@@ -143,15 +142,15 @@ If you are running this application locally on your workstation (i.e. in IntellI
 
     |   Name    |   Property    | Value | Purpose
     |   ---         | ---   | ---   | ---
-    |   Application (client) ID     |   clientId   | *your_client_id*  | Used by ADAL4J client to identify your application
-    |   Directory (tenant) ID       |   authority    | *your_tenant_id*  | Used by ADAL4J client to locate your tenant
+    |   Application (client) ID     |   clientId   | *your_client_id*  | Used by MSAL4J client to identify your application
+    |   Directory (tenant) ID       |   authority    | *your_tenant_id*  | Used by MSAL4J client to locate your tenant
     |   Application ID URI          |   application-id-uri    | *your_application_id_uri* | Used by ADAL4J client to identify your application
 
 4. In addition to the above values, you will retrieve the following:
 
     |   Property    | Value | Purpose
     |   ---         | ---   | ---
-    |   clientSecret   | *your_client_secret* | Used by ADAL4J to obtain a token from AAD
+    |   clientSecret   | *your_client_secret* | Used by MSAL4J to obtain a token from AAD
     |   resource-api-url    | http://localhost:8080/gettime | The URL you will use to test the web API on the "server"
 
 5. In the `application-local.properties` file, populate it as follows:
