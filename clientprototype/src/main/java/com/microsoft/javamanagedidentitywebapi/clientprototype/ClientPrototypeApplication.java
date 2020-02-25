@@ -46,7 +46,7 @@ public class ClientPrototypeApplication implements CommandLineRunner {
         try {
             IAuthenticationResult result = getAccessTokenByClientCredentialGrant();
 
-            System.out.println("Bearer token: " + result.accessToken());
+            System.out.println("Bearer " + result.accessToken());
             String fromWebServer = getDataFromWebServer(result.accessToken());
 
             System.out.println("##########################################");

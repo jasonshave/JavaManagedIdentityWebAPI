@@ -8,14 +8,15 @@
 This example provides the necessary code, configuration guidance, and tests associated with calling a protected web API
 using the [Java Spring Boot framework](https://spring.io/projects/spring-boot). We use Azure Active Directory as our
 authorization server to provide a token to the calling application which passes it to the web server where it is
-validated. The web API then either permits or denys the call to the URL.
+validated. The web API then either permits or denys the call to the URL using Spring Security.
 
 A common way of providing Azure Active Directory authentication to a web API from a Single Page Application ("SPA") is
 to use
 [OAuth 2.0 implicit grant flow](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-implicit-grant-flow).
-However, what if you needed to authenticate an application running as a service; without a real person providing
-credentials? Given this use case, we rely on the
+However, if you needed to authenticate an application running as a service (daemon) without a real person providing, we rely on the
 [OAuth 2.0 client credentials grant flow](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-client-creds-grant-flow).
+
+**NOTE:** This sample was recently updated to use the newer [MSAL4J](https://github.com/AzureAD/microsoft-authentication-library-for-java) library instead of the older [ADAL4J](https://github.com/AzureAD/azure-activedirectory-library-for-java).
 
 ## Scenario
 
@@ -39,12 +40,12 @@ defines the parent and subordinate child modules each with their own `pom.xml` f
 
 The [clientprototype](https://github.com/jasonshave/JavaClientCredentialFlowWebAPI/tree/master/clientprototype) folder
 contains the code for running the Client. The client relies on the Microsoft Authentication Library for Java,
-[MSAL4J](https://github.com/AzureAD/microsoft-authentication-library-for-java) to make the call to AAD in order to get the
+[MSAL4J](https://github.com/AzureAD/microsoft-authentication-library-for-java) to make the call to AAD (authorization server) in order to get the
 JWT. It is the responsibility of the client to perform the following high-level tasks:
 
-- Provide the tenantId, clientId, client secret, and resource URI to AAD
-- Receive back a token from the authorization server (AAD)
-- Call the web API with the token (JWT)
+- Provide the clientId, client secret, scope, and resource URI to AAD
+- Receive back a token from the AAD
+- Call the web API with the "Bearer" token (JWT)
 
 ### The "Server" (web API)
 
@@ -54,25 +55,30 @@ contains most of the code for this sample as it has significantly more responsib
 - Filter all HTTP calls and apply necessary security check
 - Receive token from the Client
 - Parse the token and validate it against AAD
-- Permit or deny access to the requested URL
+- Permit (HTTP/200 OK) or deny (HTTP/401 Unauthorized) access to the requested URL
 
 ### Secrets and Settings
 
 NOTE: This sample currently uses the `application-local.properties` file for both the serverprototype and
 clientprototype modules which has been ignored by Git to store secrets and configuration information.
-A future update will include instructions for incorporating Azure Key Vault's secret store.
+A future update will include instructions for incorporating Azure Key Vault's secret store to pull this information using a Managed Service Identity.
 
 ## Setup and Configuration
 
 The setup of this sample involves the following high-level tasks which are broken down into detailed steps below:
 
-1. Configure the Client in Azure Active Directory.
+1. [Configure the **Client** daemon application in Azure Active Directory](#configure-the-client-daemon-application-in-azure-active-directory).
     - Register and configure the Client application as a **registered application**
     - Create a secret
     - Obtain necessary additional parameters from AAD
-2. Configure the `clientprototype` application settings.
+2. [Configure the **Server** application in Azure Active Directory](#configure-the-server-application-in-azure-active-directory).
+    - Register and configure the Server application as a **registered application**
+3. Configure the `serverprototype` application settings.
+4. Configure the `clientprototype` application settings.
 
-### Configure the Client in Azure Active Directory
+### Configure the Client (daemon) application in Azure Active Directory
+
+In this section you will configure the client application representation, obtain your client ID, secret, and later use this object to grant access to the server API (defined below).
 
 NOTE: If you don't yet have access to Azure Active Directory, you can obtain a free tenant by
 [clicking here](https://azure.microsoft.com/en-ca/free).
@@ -97,71 +103,94 @@ NOTE: If you don't yet have access to Azure Active Directory, you can obtain a f
 
 6. Click the **Register** button.
 
-7. On the summary screen for your newly created application, click the link **Add an Application ID URI**.
-
-    - **NOTE:** The client ID, tenant ID, and object ID have been removed from the image below for security reasons.
-
-    ![AddApplicationUri](images/addapplicationiduri.png)
-
-8. Click the **Set** link, then click **Save** to accept the default application ID URI.
-
-    ![SetApplicationIdURI](images/setapplicationiduri.png)
-
-9. Click the **Certificates & Secrets** menu item.
+7. Click the **Certificates & Secrets** menu item.
 
     ![CertificatesAndSecrets](images/certificatesandsecrets.png)
 
-10. Under the **Client secrets** section click **New client secret**.
+8. Under the **Client secrets** section click **New client secret**.
 
     ![NewClientSecret](images/newclientsecret.png)
 
-11. Type a name for the **description** and select an expiration, or set it to never and click **Save**.
+9. Type a name for the **description** and select an expiration, or set it to never and click **Save**.
 
     ![AddClientSecret](images/addclientsecret.png)
 
-12. Copy the client secret value somewhere and be sure to keep it outside of your code repository.
+10. Copy the client secret value somewhere and be sure to keep it outside of your code repository.
 
     **NOTE:** You will never be able to view this secret again if you navigate away from this page.
     However, you can always delete it and/or create another one.
 
-## Configure the 'clientprototype' application settings
+### Configure the Server application in Azure Active Directory
+
+In this section you will configure the server application in Azure AD, expose the API, and provide access for the client applicaiton you defined above.
+
+1. From the same Azure Active Directory section in the portal, click on **App Registrations**.
+
+    ![AppRegistrations](images/appregistrations.png)
+
+2. Click **New registration**.
+
+    ![NewRegistration](images/newregistration.png)
+
+3. Type a **Name** for your application (i.e. serverprototype).
+
+4. For the **Supported account types**, leave the default of **Accounts in this organizational directory only (*your tenant name* - Single tenant)**.
+
+5. Click the **Register** button.
+
+### Configure the 'serverprototype' application settings
+
+1. From within the newly created server application registration, click on **Expose an API**
+
+2. Click on the **Set** button to define the **Application ID URI**
+
+3. Enter the FQDN of your application ID using your *tenant domain name* and *application name*, for example:
+
+    ```plaintext
+    https://mydomain.onmicrosoft.com/serverprototype
+    ```
+
+    ![applicationiduri](images/applicationiduri.png)
+
+### Configure the 'clientprototype' application settings
 
 If you are running this application locally on your workstation (i.e. in IntellIJ), follow these steps to configure your
 `application-local.properties' file:
 
 1. Under `/clientprototype/src/main/java/resources` create a file called `application-local.properties` and add this file to your `.gitignore`.
 
-2. You will need to gather some information from the previous steps such as:
+2. You will need to gather the following information from the previous steps:
 
-    - Application ID URI
     - Tenant ID
     - Client ID
     - Client secret
 
-3. To obtain this information, go back to the Azure portal and locate your registered application, then click the **Overview** menu and retrieve the following:
+3. To obtain this information, go back to the Azure portal and locate your Client registered application, then click the **Overview** menu and retrieve the following:
 
     |   Name    |   Property    | Value | Purpose
     |   ---         | ---   | ---   | ---
     |   Application (client) ID     |   clientId   | *your_client_id*  | Used by MSAL4J client to identify your application
     |   Directory (tenant) ID       |   authority    | *your_tenant_id*  | Used by MSAL4J client to locate your tenant
-    |   Application ID URI          |   application-id-uri    | *your_application_id_uri* | Used by ADAL4J client to identify your application
 
 4. In addition to the above values, you will retrieve the following:
 
-    |   Property    | Value | Purpose
-    |   ---         | ---   | ---
-    |   clientSecret   | *your_client_secret* | Used by MSAL4J to obtain a token from AAD
-    |   resource-api-url    | http://localhost:8080/gettime | The URL you will use to test the web API on the "server"
+    |   Property    | Value                 | Purpose
+    |   ---         | ---                   | ---
+    |   default-scope       | *your_application_id_uri*         | Used by MSAL4J to obtain a token from AAD
+    |   clientSecret        | *your_client_secret*              | Used by MSAL4J to obtain a token from AAD
+    |   resource-api-url    | http://localhost:8080/api/gettime | The URL you will use to test the web API on the "server"
 
 5. In the `application-local.properties` file, populate it as follows:
 
     ```plaintext
     authority=https://login.microsoftonline.com/*your_tenant_id*/
-    application-id-uri=api://*your_application_id_uri*
-    resource-api-url=http://localhost:8080/gettime
+    resource-api-url=http://localhost:8080/api/gettime
+    default-scope=https://*your_domain_fqdn*.onmicrosoft.com/serverprototype
     clientId=*your_client_id*
     clientSecret=*your_client_secret*
     ```
+
+    **NOTE:** When deploying your server code to Azure, be sure to modify the `resource-api-url` to match the URL of your App Service Plan.
 
 6. Within IntelliJ click the **Edit Configurations** option on the top navigation bar.
 
@@ -170,9 +199,6 @@ If you are running this application locally on your workstation (i.e. in IntellI
 7. For the **ClientPrototypeApplication** set the **Active profiles** to "local".
 
     ![LocalProfile](images/intellij.png)
-
-At this stage the Client has been configured to talk to Azure Active Directory using the registered application
-ID and secret.
 
 ## Build and Test
 
