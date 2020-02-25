@@ -202,16 +202,28 @@ If you are running this application locally on your workstation (i.e. in IntellI
 
 ## Build and Test
 
-Build both the Client and Server applications and run the Server; you should see the server listening on port 8080. When you run the client it will automatically talk to AAD, obtain a token, pass it to the server's `/gettime` URL. You should see the `Bearer` JWT (token) show up in the console as well.
+Build both the Client and Server applications and run the Server; you should see the server listening on port 8080. When you run the client it will automatically talk to AAD, obtain a token, pass it to the server's `/api/gettime` URL. You should see the `Bearer` JWT (token) show up in the console as well.
 
-### Checking your JWT bearer token from Azure AD
+### Checking your JWT Bearer token from Azure AD
 
-1. Navigate to https://jwt.io.
+1. Navigate to [JWT IO](https://jwt.io).
 
 2. Locate your `Bearer` token in the client console window and paste it into the JWT website.
+    - The signature should be validated
+    - Check the issuer, audience, and application ID
 
 ### Verify your URL is protected
 
-1. Navigate to http://localhost:8080/gettime.
+1. Using [Postman](https://www.postman.com/), test a `GET` request to your server's FQDN and path, for example: http://localhost:8080/api/gettime.
 
-2. Currently this will throw an HTTP/500 error.
+2. You should see the following:
+
+    ```json
+    {
+        "timestamp": "2020-02-25T20:40:50.064+0000",
+        "status": 401,
+        "error": "Unauthorized",
+        "message": "Access Denied",
+        "path": "/api/gettime"
+    }
+    ```
