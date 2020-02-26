@@ -37,7 +37,6 @@ public class JWTParserConfiguration {
         return expectedIssuerClaim;
     }
 
-
     public String getExpectedAudienceClaim() {
         return expectedAudienceClaim;
     }
