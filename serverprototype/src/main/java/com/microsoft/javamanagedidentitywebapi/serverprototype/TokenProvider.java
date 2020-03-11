@@ -47,7 +47,7 @@ public class TokenProvider {
         }
     }
 
-    public Authentication getAuthentication(String token) {
+    public Authentication getAuthentication(String token) throws MalformedURLException, BadJOSEException, ParseException, JOSEException {
 
         JWTClaimsSet claimsSet = this.getClaims(token);
 
@@ -64,13 +64,14 @@ public class TokenProvider {
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
     }
 
-    public boolean validateToken(String authToken) {
+    public boolean validateToken(String authToken) throws MalformedURLException, BadJOSEException, ParseException, JOSEException {
         return (this.getClaims(authToken) != null);
     }
 
-    private JWTClaimsSet getClaims(String authToken) {
+    private JWTClaimsSet getClaims(String authToken) throws MalformedURLException, BadJOSEException, ParseException, JOSEException {
         JWTClaimsSet claimsSet = null;
-
+        claimsSet = this.customJWTParser.getTokenClaims(authToken);
+/*
         try {
             claimsSet = this.customJWTParser.getTokenClaims(authToken);
 
@@ -83,6 +84,7 @@ public class TokenProvider {
         } catch (JOSEException e) {
             log.error("JWT signature or encryption general exception: {}", e);
         }
+*/
 
         return claimsSet;
     }
